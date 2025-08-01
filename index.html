@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Used Goods Registration</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 30px; }
+    .card { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+    .result { margin-top: 20px; font-size: 18px; font-weight: bold; color: #333; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Used Goods Registration</h2>
+  <input type="text" id="name" placeholder="Your Name">
+  <input type="email" id="email" placeholder="Your Email">
+  <button onclick="submitForm()">Register</button>
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyeC7DT74708SkSPM0Q9VvP7KEEhWMETKra8Ss1TbFmRf4KgzQyOw7Hg5g5q2g59K3L/exec";
+
+  async function submitForm() {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const resultDiv = document.getElementById("result");
+
+    if (!name || !email) {
+      resultDiv.innerText = "Please fill in both fields.";
+      return;
+    }
+
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ name, email }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+
+      if (data.status === "exists") {
+        resultDiv.innerHTML = `Hi <b>${data.name}</b>, you are already in <b>Batch ${data.batch}</b>.`;
+      } else {
+        resultDiv.innerHTML = `Thank you, <b>${data.name}</b>!<br>You are registered in <b>Batch ${data.batch}</b>.`;
+      }
+
+    } catch (err) {
+      resultDiv.innerText = "There was an error submitting your registration.";
+      console.error(err);
+    }
+  }
+</script>
+
+</body>
+</html>
