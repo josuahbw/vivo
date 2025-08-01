@@ -13,6 +13,7 @@
       max-width: 420px;
       margin: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
     }
     h2 { margin-top: 0; }
     input, button {
@@ -39,6 +40,32 @@
       font-weight: bold;
       color: #333;
     }
+    .loading {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      color: #4CAF50;
+    }
+
+    .loading::after {
+      content: "";
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      margin-left: 8px;
+      border: 3px solid #4CAF50;
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -49,21 +76,26 @@
     <input type="text" id="name" placeholder="Your Name" />
     <input type="email" id="email" placeholder="Your Email" />
     <button onclick="submitForm()">Register</button>
+    <div class="loading" id="loading">Processing</div>
     <div class="result" id="result"></div>
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzlROiQaJgf7aV1EUSMKFyFG0Cnm5iws24DfWH47o2xNca-KFfVpAjtVeizvt8-e1IP/exec"; // ganti sesuai URL Web App kamu
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzlROiQaJgf7aV1EUSMKFyFG0Cnm5iws24DfWH47o2xNca-KFfVpAjtVeizvt8-e1IP/exec";
 
     async function submitForm() {
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const resultDiv = document.getElementById("result");
+      const loadingDiv = document.getElementById("loading");
 
       if (!name || !email) {
         resultDiv.innerText = "Please fill in both fields.";
         return;
       }
+
+      loadingDiv.style.display = "block";
+      resultDiv.innerText = "";
 
       try {
         const formData = new URLSearchParams();
@@ -88,6 +120,8 @@
       } catch (error) {
         console.error(error);
         resultDiv.innerText = "There was an error submitting your registration.";
+      } finally {
+        loadingDiv.style.display = "none";
       }
     }
   </script>
