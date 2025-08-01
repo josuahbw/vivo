@@ -1,33 +1,96 @@
-<form id="registerForm">
-  <input type="text" id="name" placeholder="Your Name" required>
-  <input type="email" id="email" placeholder="Your Email" required>
-  <button type="submit">Register</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Used Goods Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #f1f1f1; margin: 0; padding: 40px; }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 420px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 { margin-top: 0; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
 
-<script>
-  document.getElementById("registerForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
+  <div class="card">
+    <h2>Used Goods Registration</h2>
+    <p>Please enter your name and email to get your batch number.</p>
+    <input type="text" id="name" placeholder="Your Name" />
+    <input type="email" id="email" placeholder="Your Email" />
+    <button onclick="submitForm()">Register</button>
+    <div class="result" id="result"></div>
+  </div>
 
-    fetch("https://script.google.com/macros/s/AKfycbzlROiQaJgf7aV1EUSMKFyFG0Cnm5iws24DfWH47o2xNca-KFfVpAjtVeizvt8-e1IP/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert(`Registration successful! You are in Batch ${data.batch}`);
-      } else {
-        alert("Registration failed.");
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzlROiQaJgf7aV1EUSMKFyFG0Cnm5iws24DfWH47o2xNca-KFfVpAjtVeizvt8-e1IP/exec"; // ganti sesuai URL Web App kamu
+
+    async function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!name || !email) {
+        resultDiv.innerText = "Please fill in both fields.";
+        return;
       }
-    })
-    .catch(error => {
-      console.error("Error:", error);
-      alert("There was an error submitting your registration.");
-    });
-  });
-</script>
+
+      try {
+        const formData = new URLSearchParams();
+        formData.append("name", name);
+        formData.append("email", email);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.status === "exists") {
+          resultDiv.innerHTML = `Hi <b>${data.name}</b>, you are already in <b>Batch ${data.batch}</b>.`;
+        } else {
+          resultDiv.innerHTML = `Thank you, <b>${data.name}</b>!<br>You are registered in <b>Batch ${data.batch}</b>.`;
+        }
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerText = "There was an error submitting your registration.";
+      }
+    }
+  </script>
+
+</body>
+</html>
